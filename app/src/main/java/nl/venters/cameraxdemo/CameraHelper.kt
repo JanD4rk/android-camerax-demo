@@ -4,10 +4,13 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraMetadata
 import android.util.DisplayMetrics
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.*
 import androidx.camera.core.impl.ImageAnalysisConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -35,7 +38,7 @@ class CameraHelper(
 
     private var cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
-    private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
+    private var lensFacing: Int = -1
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
 
@@ -48,9 +51,20 @@ class CameraHelper(
         }
     }
 
+    fun toggleCamera(lens: Int) {
+        lensFacing = lens
+        startCamera()
+    }
+
     fun stop() {
         cameraExecutor.shutdown()
     }
+
+    var flash = false
+        set(value) {
+            field = value
+            camera?.cameraControl?.enableTorch(value)
+        }
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
@@ -58,18 +72,21 @@ class CameraHelper(
 
             cameraProvider = cameraProviderFuture.get()
 
-            lensFacing = when {
-                hasBackCamera() -> CameraSelector.LENS_FACING_BACK
-                hasFrontCamera() -> CameraSelector.LENS_FACING_FRONT
-                else -> throw IllegalStateException("Back and front camera are unavailable")
-            }
+            if (lensFacing == -1)
+                lensFacing = when {
+                    hasBackCamera() -> CameraSelector.LENS_FACING_BACK
+                    hasFrontCamera() -> CameraSelector.LENS_FACING_FRONT
+                    else -> throw IllegalStateException("Back and front camera are unavailable")
+                }
+
             bindCameraUseCases()
         }, ContextCompat.getMainExecutor(context))
     }
 
     private fun bindCameraUseCases() {
 
-        val cameraProvider = cameraProvider ?: throw IllegalStateException("Camera initialization failed.")
+        val cameraProvider =
+            cameraProvider ?: throw IllegalStateException("Camera initialization failed.")
 
         val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         val previewView = getPreviewUseCase()

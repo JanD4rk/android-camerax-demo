@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import androidx.camera.core.CameraSelector
 import androidx.databinding.DataBindingUtil
 import nl.venters.cameraxdemo.databinding.ActivityMainBinding
 
@@ -29,6 +30,12 @@ class MainActivity : AppCompatActivity() {
         )
 
         cameraHelper.start()
+        binding.test.setOnClickListener {
+            cameraHelper.flash=!cameraHelper.flash
+        }
+        binding.test2.setOnClickListener {
+            cameraHelper.toggleCamera(CameraSelector.LENS_FACING_FRONT)
+        }
     }
 
     private fun onResult(result: String) {

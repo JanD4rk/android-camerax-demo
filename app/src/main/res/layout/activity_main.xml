@@ -22,5 +22,23 @@
         app:layout_constraintRight_toRightOf="parent"
        />
 
+    <Button
+        android:id="@+id/test"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="48dp"
+        android:layout_height="48dp"/>
+
+    <Button
+        android:id="@+id/test2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/test"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="48dp"
+        android:layout_height="48dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
